@@ -9,3 +9,7 @@ dependencies = [
     "fastmcp>=2.12.4",
     "mcp>=1.16.0",
 ]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = {find = {where = ["src"]}}
