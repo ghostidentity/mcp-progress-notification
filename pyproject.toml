@@ -17,3 +17,6 @@ packages = {find = {where = ["src"]}}
 [project.scripts]
 run-server = "server.server:main"
 run-client = "client.client:main"
+
+[tool.uv]
+package = true
