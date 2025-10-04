@@ -19,7 +19,7 @@ async def my_progress_handler(
 async def main():
     print("[Setup] Initializing transport and client...")
 
-    # Set up the transport with custom headers for authentication
+    # Set up the transport (removed Authorization header if not needed)
     transport = StreamableHttpTransport(
         url="http://localhost:8000/mcp",
         headers={
@@ -79,6 +79,10 @@ async def main():
     except Exception as e:
         print(f"[Error] Client operation failed: {e}")
 
+def run():
+    """Synchronous wrapper for the async main function."""
+    asyncio.run(main())
+
 if __name__ == "__main__":
     print("[Main] Starting async client...")
-    asyncio.run(main())
+    run()
