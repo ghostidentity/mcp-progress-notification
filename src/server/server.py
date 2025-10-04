@@ -47,6 +47,9 @@ async def fruit_processor(fruits: list[str], ctx: Context) -> dict:
 def hello(name: str) -> str:
     return f"Hello, {name}!"
 
-if __name__ == "__main__":
+def main():
     # Start an HTTP server on port 8000
     mcp.run(transport="streamable-http", host="localhost", port=8000)
+
+if __name__ == "__main__":
+    main()
