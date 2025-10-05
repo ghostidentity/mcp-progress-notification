@@ -1,7 +1,50 @@
 import asyncio
 from fastmcp.client.transports import StreamableHttpTransport
+from fastmcp.client.messages import MessageHandler
 from fastmcp.client import Client
+import mcp.types
+from fastmcp.client.logging import LogMessage
+import logging
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Get a logger for the module where the client is used
+logger = logging.getLogger(__name__)
+
+# This mapping is useful for converting MCP level strings to Python's levels
+LOGGING_LEVEL_MAP = logging.getLevelNamesMapping()
+
+
+class ToolCacheHandler(MessageHandler):
+    def __init__(self):
+        self.cached_tools = []
+    
+    async def on_tool_list_changed(
+        self, notification: mcp.types.ToolListChangedNotification
+    ) -> None:
+        """Clear tool cache when tools change."""
+        print("Tools changed - clearing cache")
+        print(notification)
+        self.cached_tools = []  # Force refresh on next access
+        
+        
+async def log_handler(message: LogMessage):
+    """
+    Handles incoming logs from the MCP server and forwards them
+    to the standard Python logging system.
+    """
+    msg = message.data.get('msg')
+    extra = message.data.get('extra')
+
+    # Convert the MCP log level to a Python log level
+    level = LOGGING_LEVEL_MAP.get(message.level.upper(), logging.INFO)
+
+    # Log the message using the standard logging library
+    logger.log(level, msg, extra=extra)
+        
 # Custom progress handler with enhanced output formatting
 async def my_progress_handler(
     progress: float, 
@@ -29,7 +72,7 @@ async def main():
     )
 
     # Initialize the client
-    client = Client(transport=transport)
+    client = Client(transport=transport, message_handler=ToolCacheHandler(),  log_handler=log_handler,)
 
     try:
         async with client:
@@ -59,7 +102,7 @@ async def main():
                 except Exception as e:
                     print(f"[Error] Failed to call 'hello' tool: {e}")
             else:
-                print("[Info] 'hello' tool not available")
+                print("[Info] 'hello' tool not available because it's disabled")
             
             if "fruit_processor" in available_tools:
                 fruits = ["apple", "banana", "cherry"]
